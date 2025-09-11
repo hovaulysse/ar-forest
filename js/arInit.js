@@ -1,7 +1,15 @@
 // js/arInit.js
+// <-- Remplacez les imports « bare » par des URLs CDN
+import * as THREE               from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
+import { GLTFLoader }           from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/GLTFLoader.js';
+import { ARjs }                 from 'https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/three.js/build/ar-threex.esm.js';
+
+// Vos propres modules (Ils restent en import relatif)
 import { Environment }   from './Environment.js';
 import { TreeInstancer } from './TreeInstancer.js';
 import { Controls }      from './Controls.js';
+
+// … le reste du fichier reste identique …
 
 let scene, camera, renderer, arSource, arContext, markerRoot;
 let forest, env;
