@@ -1,66 +1,112 @@
-// arInit.js – point d’entrée
-import * as THREE from 'three';
-import { Environment } from './Environment.js';
+// js/arInit.js
+import { Environment }   from './Environment.js';
 import { TreeInstancer } from './TreeInstancer.js';
-import { Controls } from './Controls.js';
+import { Controls }      from './Controls.js';
 
-// ---------- 1️⃣ Scène, lumière ----------
-const scene = new THREE.Scene();
-scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-const dir = new THREE.DirectionalLight(0xffffff, 0.6);
-dir.position.set(5, 10, 5);
-scene.add(dir);
+let scene, camera, renderer, arSource, arContext, markerRoot;
+let forest, env;
 
-// ---------- 2️⃣ AR.js ----------
-const arSource = new THREEx.ArToolkitSource({ sourceType: 'webcam' });
-arSource.init(() => onResize());
+// ------------------------------------------------------------------
+// 1️⃣ Initialise la scène Three.js
+// ------------------------------------------------------------------
+function initScene() {
+  scene = new THREE.Scene();
+  scene.add(new THREE.AmbientLight(0xffffff, 0.8));
 
+  const dir = new THREE.DirectionalLight(0xffffff, 0.6);
+  dir.position.set(5, 10, 5);
+  scene.add(dir);
+
+  camera = new THREE.Camera();
+  scene.add(camera);
+
+  renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+}
+
+// ------------------------------------------------------------------
+// 2️⃣ Initialise AR.js (marqueur)
+// ------------------------------------------------------------------
+function initAR() {
+  arSource = new THREEx.ArToolkitSource({ sourceType:'webcam' });
+
+  // → on ne lance pas encore la caméra (attente du bouton)
+  // c’est le `startAr` qui appellera `arSource.init(...)`
+
+  arContext = new THREEx.ArToolkitContext({
+    detectionMode:'mono_and_matrix',
+    matrixCodeType:'3x3'
+  });
+
+  markerRoot = new THREE.Group();
+  scene.add(markerRoot);
+  new THREEx.ArMarkerControls(arContext, markerRoot, {
+    type:'pattern',
+    patternUrl:'assets/marker.patt'   // ← fichier généré depuis marker.png
+  });
+}
+
+// ------------------------------------------------------------------
+// 3️⃣ Crée la forêt (instancing) et l’environnement
+// ------------------------------------------------------------------
+function initForest() {
+  forest = new TreeInstancer(markerRoot, 2500);
+  forest.loadModel('assets/forest.glb');   // ← modèle exporté depuis Womp
+
+  env = new Environment();
+  new Controls(env, forest);               // UI ↔ environnement
+}
+
+// ------------------------------------------------------------------
+// 4️⃣ Gestion du redimensionnement (important sur mobile)
+// ------------------------------------------------------------------
 function onResize(){
   arSource.onResizeElement();
   arSource.copySizeTo(renderer.domElement);
 }
-const arContext = new THREEx.ArToolkitContext({
-  detectionMode: 'mono_and_matrix',
-  matrixCodeType: '3x3',
-});
-arContext.init(() => {
-  camera.projectionMatrix.copy(arContext.getProjectionMatrix());
-});
 
-const markerRoot = new THREE.Group();
-scene.add(markerRoot);
-new THREEx.ArMarkerControls(arContext, markerRoot, {
-  type: 'pattern',
-  patternUrl: 'assets/marker.patt',
-});
-
-// ---------- 3️⃣ Renderer ----------
-const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(window.devicePixelRatio);
-document.body.appendChild(renderer.domElement);
-const camera = new THREE.Camera();
-scene.add(camera);
-
-// ---------- 4️⃣ Chargement du modèle (export de Womp) ----------
-const forest = new TreeInstancer(markerRoot, 2500); // on crée l'instancing avant le chargement
-forest.loadModel('assets/forest.glb'); // <‑‑ fichier exporté depuis Womp
-
-// ---------- 5️⃣ Environnement + UI ----------
-const env = new Environment();                 // variables climatiques
-new Controls(env, forest);                     // lie les sliders aux variables
-
-// ---------- 6️⃣ Boucle d’animation ----------
+// ------------------------------------------------------------------
+// 5️⃣ Boucle d’animation
+// ------------------------------------------------------------------
 let last = performance.now();
 function animate(now){
   requestAnimationFrame(animate);
-  const dt = (now - last) / 1000;
+  const dt = (now - last) / 1000;   // secondes
   last = now;
 
-  if (arSource.ready !== false) arContext.update(arSource.domElement);
+  // Si la webcam a été activée (see start button) : mise à jour ARCore/ARKit
+  if (arSource.ready) arContext.update(arSource.domElement);
 
-  if (markerRoot.visible) forest.update(env, dt); // simulation seulement quand le marqueur est vu
+  // La forêt ne se calcule que lorsque le marqueur est visible
+  if (markerRoot.visible) forest.update(env, dt);
 
   renderer.render(scene, camera);
 }
-animate();
+
+// ------------------------------------------------------------------
+// 6️⃣ Bouton « Démarrer AR » (gesture requis sur iOS)
+// ------------------------------------------------------------------
+function bindStartButton(){
+  const btn = document.getElementById('startAr');
+  btn.addEventListener('click', () => {
+    // Démarrage réel de la webcam (c’est un geste utilisateur → OK iOS)
+    arSource.init(() => onResize());
+
+    // UI : masquer le bouton, afficher le panel de contrôle
+    btn.style.display = 'none';
+    document.getElementById('ui').classList.remove('hidden');
+  });
+}
+
+// ------------------------------------------------------------------
+// 7️⃣ Entrée principale
+// ------------------------------------------------------------------
+function main(){
+  initScene();
+  initAR();
+  initForest();
+  bindStartButton();
+  animate();               // démarre la boucle
+}
+main();
