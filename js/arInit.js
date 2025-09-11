@@ -1,8 +1,8 @@
 // js/arInit.js
 // <-- Remplacez les imports « bare » par des URLs CDN
-import * as THREE                   from './three.module.js';
-import { GLTFLoader }               from './GLTFLoader.js';
-import { ARjs }                     from './ar-threex.mjs';
+import * as THREE from './three.module.js';
+import { GLTFLoader } from './GLTFLoader.js';
+import { ARjs } from './ar-threex.mjs';
 // Vos propres modules (Ils restent en import relatif)
 import { Environment }   from './Environment.js';
 import { TreeInstancer } from './TreeInstancer.js';
