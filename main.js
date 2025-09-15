@@ -7,22 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let treeModel = null;
 
     // Fonction pour charger le modèle 3D une seule fois
-    const loadModel = () => {
-        const modelElement = document.createElement('a-gltf-model');
-        modelElement.setAttribute('src', './assets/forest.glb');
-        modelElement.setAttribute('scale', '0.5 0.5 0.5');
-        modelElement.setAttribute('visible', 'false'); // Rendre invisible pendant le chargement
-        
-        return new Promise(resolve => {
-            modelElement.addEventListener('model-loaded', () => {
-                treeModel = modelElement.cloneNode(true); // Stocker le modèle chargé
-                modelElement.remove(); // Supprimer l'élément temporaire
-                resolve();
-            });
-            scene.appendChild(modelElement);
-        });
-    };
-
+    const modelElement = document.createElement('a-gltf-model');
+    modelElement.setAttribute('src', './assets/tree/tree.gltf');
+    modelElement.setAttribute('scale', '0.5 0.5 0.5');
+    // ... le reste du code
     // Attendre que le modèle soit chargé avant de rendre le bouton fonctionnel
     loadModel().then(() => {
         console.log("Modèle 3D chargé, le bouton est prêt.");
