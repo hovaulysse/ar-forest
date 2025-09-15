@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 3. DÉFINITION DE LA FONCTION POUR CHARGER LE MODÈLE
-    // Elle doit être définie dans la portée de `DOMContentLoaded`.
+    // Fonction définie AVANT son utilisation
     const loadModel = () => {
         const tempModelForLoading = document.createElement('a-gltf-model');
         tempModelForLoading.setAttribute('src', './assets/tree/tree.gltf');
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // 4. LOGIQUE PRINCIPALE ET ÉVÉNEMENTS
-    // Cette partie utilise la fonction `loadModel`.
+    // Maintenant nous pouvons utiliser loadModel()
     loadModel().then(() => {
         console.log("Modèle 3D maître chargé.");
 
