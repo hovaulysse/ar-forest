@@ -1,52 +1,72 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const startButton = document.getElementById('start-button');
-    const addTreeButton = document.getElementById('add-tree-button');
+    const mainButton = document.getElementById('main-button');
+    const statusMessage = document.getElementById('status-message');
     const scene = document.querySelector('a-scene');
     const camera = document.querySelector('a-camera');
     const cursor = document.querySelector('[cursor]');
 
-    let treeModel;
+    let treeModel = null;
+    let placementEnabled = false;
 
- //... (début du code)
-    let treeModel;
-
-    // Charger le modèle 3D une seule fois
+    // Étape 1 : Charger le modèle 3D une seule fois
     const loadTreeModel = () => {
         return new Promise(resolve => {
-            const tempContainer = document.createElement('a-entity');
-            const model = document.createElement('a-gltf-model');
-            model.setAttribute('src', './assets/forest.glb');
-            model.setAttribute('scale', '0.5 0.5 0.5');
-            
-            // Écoutez l'événement 'model-loaded' sur le modèle lui-même
-            model.addEventListener('model-loaded', () => {
-                treeModel = model.cloneNode(true); // Clone le modèle chargé
+            const tempModel = document.createElement('a-gltf-model');
+            tempModel.setAttribute('src', './assets/votre_modele_arbre.gltf');
+            tempModel.setAttribute('scale', '0.5 0.5 0.5');
+            tempModel.setAttribute('visible', 'false'); // Cache le modèle pendant le chargement
+
+            tempModel.addEventListener('model-loaded', () => {
+                treeModel = tempModel.cloneNode(true);
+                tempModel.remove(); // Retire le modèle temporaire de la scène
                 resolve();
             });
-            
-            // Ajoutez temporairement le modèle à la scène pour le chargement
-            tempContainer.appendChild(model);
-            scene.appendChild(tempContainer);
+
+            scene.appendChild(tempModel);
         });
     };
 
-    loadTreeModel().then(() => {
-        // Le modèle est chargé, on peut l'utiliser
-        addTreeButton.addEventListener('click', () => {
-            // Créer une nouvelle instance de l'arbre
-            const newTree = treeModel.cloneNode(true);
+    // Étape 2 : Gérer le clic sur le bouton principal
+    mainButton.addEventListener('click', () => {
+        if (!placementEnabled) {
+            // Première phase : Initialiser l'expérience
+            mainButton.style.display = 'none'; // Cache le bouton de démarrage
+            statusMessage.textContent = 'Déplacez votre téléphone pour détecter une surface.';
             
-            // Récupérer la position du curseur
-            const cursorPosition = cursor.object3D.position;
-            const cameraPosition = camera.object3D.position;
+            // Attendre la détection d'une surface pour changer le message
+            scene.addEventListener('ar-tracking-found', () => {
+                statusMessage.textContent = 'Dirigez le point blanc vers le sol, puis cliquez pour placer l\'arbre.';
+                mainButton.style.display = 'block'; // Affiche le bouton "Placer"
+                mainButton.textContent = 'Placer un arbre';
+                placementEnabled = true;
+            });
+            
+            loadTreeModel();
 
-            // Définir la position du nouvel arbre par rapport à la caméra
-            newTree.object3D.position.set(
-                cameraPosition.x + cursorPosition.x,
-                cameraPosition.y + cursorPosition.y,
-                cameraPosition.z + cursorPosition.z
-            );
-            
-            scene.appendChild(newTree);
-        });
+        } else {
+            // Deuxième phase : Placer un arbre
+            if (treeModel) {
+                const newTree = treeModel.cloneNode(true);
+                const cursorPosition = cursor.object3D.position;
+                const cameraPosition = camera.object3D.position;
+                
+                newTree.setAttribute('visible', 'true');
+                newTree.object3D.position.set(
+                    cameraPosition.x + cursorPosition.x,
+                    cameraPosition.y + cursorPosition.y,
+                    cameraPosition.z + cursorPosition.z
+                );
+                
+                scene.appendChild(newTree);
+                statusMessage.textContent = 'Arbre placé ! Vous pouvez en ajouter un autre.';
+            }
+        }
     });
+
+    // Optionnel : Afficher un message d'erreur si l'accès à la caméra échoue
+    window.addEventListener('error', (e) => {
+        if (e.message.includes('permission denied')) {
+            statusMessage.textContent = 'Erreur : l\'accès à la caméra a été refusé.';
+        }
+    });
+});
