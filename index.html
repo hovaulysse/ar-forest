@@ -6,36 +6,40 @@
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
       body { margin: 0; overflow: hidden; }
-      #start-button {
+      .ui-button {
         position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
         padding: 15px 30px;
         font-size: 18px;
-        background-color: #4CAF50;
         color: white;
         border: none;
         border-radius: 5px;
         cursor: pointer;
         z-index: 999;
       }
+      #start-button {
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #4CAF50;
+      }
+      #add-tree-button {
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #008CBA;
+        display: none; /* Initialement caché */
+      }
     </style>
   </head>
   <body>
-    <a-scene embedded arjs>
-      <a-scene embedded vr-mode-ui="enabled: false" arjs="sourceType: webcam; detectionMode: mono; trackingMethod: best; debugUIEnabled: false;">
-  <a-entity id="tree-container" visible="false"></a-entity>
-  
-  <a-camera id="camera" position="0 0 0" look-controls="enabled: false">
-    <a-entity cursor="fuse: false; rayOrigin: mouse" geometry="primitive: circle; radius: 0.005" position="0 0 -1" material="color: white; shader: flat; opacity: 0.5"></a-entity>
-  </a-camera>
-
-</a-scene>
-      <a-entity id="tree-container" visible="false"></a-entity>
+    <a-scene embedded vr-mode-ui="enabled: false" arjs="sourceType: webcam; detectionMode: mono; trackingMethod: best; debugUIEnabled: false;">
+      <a-camera position="0 0 0" look-controls="enabled: false">
+        <a-entity cursor="fuse: false; rayOrigin: mouse" geometry="primitive: circle; radius: 0.005" position="0 0 -1" material="color: white; shader: flat; opacity: 0.5"></a-entity>
+      </a-camera>
     </a-scene>
 
-    <button id="start-button">Commencer</button>
+    <button id="start-button" class="ui-button">Commencer l'expérience</button>
+    <button id="add-tree-button" class="ui-button">Ajouter un arbre</button>
 
     <script src="main.js"></script>
   </body>
