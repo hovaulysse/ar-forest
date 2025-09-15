@@ -7,28 +7,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let treeModel;
 
-    // Étape 1: Gérer le bouton de démarrage
-    startButton.addEventListener('click', () => {
-        startButton.style.display = 'none';
-        addTreeButton.style.display = 'block'; // Affiche le bouton "Ajouter"
-        scene.play();
-    });
+ //... (début du code)
+    let treeModel;
 
-    // Étape 2: Charger le modèle 3D une seule fois
+    // Charger le modèle 3D une seule fois
     const loadTreeModel = () => {
         return new Promise(resolve => {
             const tempContainer = document.createElement('a-entity');
             const model = document.createElement('a-gltf-model');
             model.setAttribute('src', './assets/forest.glb');
             model.setAttribute('scale', '0.5 0.5 0.5');
-            model.setAttribute('rotation', '0 0 0');
             
-            tempContainer.appendChild(model);
-            
+            // Écoutez l'événement 'model-loaded' sur le modèle lui-même
             model.addEventListener('model-loaded', () => {
-                treeModel = tempContainer;
+                treeModel = model.cloneNode(true); // Clone le modèle chargé
                 resolve();
             });
+            
+            // Ajoutez temporairement le modèle à la scène pour le chargement
+            tempContainer.appendChild(model);
             scene.appendChild(tempContainer);
         });
     };
@@ -53,4 +50,3 @@ document.addEventListener('DOMContentLoaded', () => {
             scene.appendChild(newTree);
         });
     });
-});
