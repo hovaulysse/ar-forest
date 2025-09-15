@@ -1,59 +1,43 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const mainButton = document.getElementById('main-button');
-    const statusMessage = document.getElementById('status-message');
+    const placeButton = document.getElementById('place-button');
     const scene = document.querySelector('a-scene');
     const camera = document.querySelector('a-camera');
     const cursor = document.querySelector('[cursor]');
 
     let treeModel = null;
-    let placementEnabled = false;
 
-    // Étape 1 : Charger le modèle 3D une seule fois
-//... (start of code)
-    let treeModel = null; // Declaration is only here
-
-    // Étape 1 : Charger le modèle 3D une seule fois
-    const loadTreeModel = () => {
+    // Fonction pour charger le modèle 3D une seule fois
+    const loadModel = () => {
+        const modelElement = document.createElement('a-gltf-model');
+        modelElement.setAttribute('src', './assets/forest.glb');
+        modelElement.setAttribute('scale', '0.5 0.5 0.5');
+        modelElement.setAttribute('visible', 'false'); // Rendre invisible pendant le chargement
+        
         return new Promise(resolve => {
-            const tempModel = document.createElement('a-gltf-model');
-            tempModel.setAttribute('src', './assets/forest.glb');
-            tempModel.setAttribute('scale', '0.5 0.5 0.5');
-            tempModel.setAttribute('visible', 'false');
-
-            tempModel.addEventListener('model-loaded', () => {
-                treeModel = tempModel.cloneNode(true); // Assign value, no 'let' or 'const'
-                tempModel.remove();
+            modelElement.addEventListener('model-loaded', () => {
+                treeModel = modelElement.cloneNode(true); // Stocker le modèle chargé
+                modelElement.remove(); // Supprimer l'élément temporaire
                 resolve();
             });
-
-            scene.appendChild(tempModel);
+            scene.appendChild(modelElement);
         });
     };
-    //... (rest of the code)
-    // Étape 2 : Gérer le clic sur le bouton principal
-    mainButton.addEventListener('click', () => {
-        if (!placementEnabled) {
-            // Première phase : Initialiser l'expérience
-            mainButton.style.display = 'none'; // Cache le bouton de démarrage
-            statusMessage.textContent = 'Déplacez votre téléphone pour détecter une surface.';
-            
-            // Attendre la détection d'une surface pour changer le message
-            scene.addEventListener('ar-tracking-found', () => {
-                statusMessage.textContent = 'Dirigez le point blanc vers le sol, puis cliquez pour placer l\'arbre.';
-                mainButton.style.display = 'block'; // Affiche le bouton "Placer"
-                mainButton.textContent = 'Placer un arbre';
-                placementEnabled = true;
-            });
-            
-            loadTreeModel();
 
-        } else {
-            // Deuxième phase : Placer un arbre
+    // Attendre que le modèle soit chargé avant de rendre le bouton fonctionnel
+    loadModel().then(() => {
+        console.log("Modèle 3D chargé, le bouton est prêt.");
+        
+        // Attacher le "listener" au bouton après le chargement
+        placeButton.addEventListener('click', () => {
             if (treeModel) {
+                // Créer une nouvelle instance de l'arbre à placer
                 const newTree = treeModel.cloneNode(true);
+                
+                // Récupérer la position du curseur
                 const cursorPosition = cursor.object3D.position;
                 const cameraPosition = camera.object3D.position;
                 
+                // Positionner le nouvel arbre sur la scène
                 newTree.setAttribute('visible', 'true');
                 newTree.object3D.position.set(
                     cameraPosition.x + cursorPosition.x,
@@ -62,15 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 );
                 
                 scene.appendChild(newTree);
-                statusMessage.textContent = 'Arbre placé ! Vous pouvez en ajouter un autre.';
+                console.log("Un arbre a été placé !");
             }
-        }
-    });
-
-    // Optionnel : Afficher un message d'erreur si l'accès à la caméra échoue
-    window.addEventListener('error', (e) => {
-        if (e.message.includes('permission denied')) {
-            statusMessage.textContent = 'Erreur : l\'accès à la caméra a été refusé.';
-        }
+        });
     });
 });
