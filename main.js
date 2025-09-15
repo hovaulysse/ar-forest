@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Promise(resolve => {
             const tempContainer = document.createElement('a-entity');
             const model = document.createElement('a-gltf-model');
-            model.setAttribute('src', './assets/votre_modele_arbre.gltf');
+            model.setAttribute('src', './assets/forest.glb');
             model.setAttribute('scale', '0.5 0.5 0.5');
             model.setAttribute('rotation', '0 0 0');
             
