@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Étape 1 : Obtenez les références de vos éléments HTML
+    // Get references to your HTML elements
     const placeButton = document.getElementById('place-button');
     const scene = document.querySelector('a-scene');
     const camera = document.querySelector('a-camera');
@@ -7,10 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let treeModel = null;
 
-    // Étape 2 : Définissez la fonction loadModel ici
+    // DEFINE THE FUNCTION HERE, BEFORE IT'S CALLED
     const loadModel = () => {
         const modelElement = document.createElement('a-gltf-model');
-        modelElement.setAttribute('src', './assets/tree/tree.gltf');
+        // Make sure this path is correct for your file
+        modelElement.setAttribute('src', './assets/tree/tree.gltf'); 
         modelElement.setAttribute('scale', '0.5 0.5 0.5');
         modelElement.setAttribute('visible', 'false');
         
@@ -24,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Étape 3 : Appelez la fonction loadModel une fois qu'elle est définie
+    // CALL THE FUNCTION HERE, AFTER IT HAS BEEN DEFINED
     loadModel().then(() => {
         console.log("Modèle 3D chargé, le bouton est prêt.");
         
