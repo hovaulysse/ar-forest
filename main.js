@@ -9,23 +9,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let placementEnabled = false;
 
     // Étape 1 : Charger le modèle 3D une seule fois
+//... (start of code)
+    let treeModel = null; // Declaration is only here
+
+    // Étape 1 : Charger le modèle 3D une seule fois
     const loadTreeModel = () => {
         return new Promise(resolve => {
             const tempModel = document.createElement('a-gltf-model');
-            tempModel.setAttribute('src', './assets/votre_modele_arbre.gltf');
+            tempModel.setAttribute('src', './assets/forest.glb');
             tempModel.setAttribute('scale', '0.5 0.5 0.5');
-            tempModel.setAttribute('visible', 'false'); // Cache le modèle pendant le chargement
+            tempModel.setAttribute('visible', 'false');
 
             tempModel.addEventListener('model-loaded', () => {
-                treeModel = tempModel.cloneNode(true);
-                tempModel.remove(); // Retire le modèle temporaire de la scène
+                treeModel = tempModel.cloneNode(true); // Assign value, no 'let' or 'const'
+                tempModel.remove();
                 resolve();
             });
 
             scene.appendChild(tempModel);
         });
     };
-
+    //... (rest of the code)
     // Étape 2 : Gérer le clic sur le bouton principal
     mainButton.addEventListener('click', () => {
         if (!placementEnabled) {
