@@ -6,15 +6,11 @@
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
       body { margin: 0; overflow: hidden; }
-      .ui-overlay {
+      #place-button {
         position: fixed;
         bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
-        z-index: 999;
-        text-align: center;
-      }
-      .ui-button {
         padding: 15px 30px;
         font-size: 18px;
         color: white;
@@ -22,12 +18,7 @@
         border: none;
         border-radius: 5px;
         cursor: pointer;
-      }
-      #status-message {
-        color: white;
-        font-size: 1.2em;
-        margin-bottom: 10px;
-        text-shadow: 1px 1px 2px black;
+        z-index: 999;
       }
     </style>
   </head>
@@ -38,10 +29,7 @@
       </a-camera>
     </a-scene>
 
-    <div class="ui-overlay">
-      <div id="status-message"></div>
-      <button id="main-button" class="ui-button">Commencer</button>
-    </div>
+    <button id="place-button">Placer l'objet</button>
 
     <script src="main.js"></script>
   </body>
